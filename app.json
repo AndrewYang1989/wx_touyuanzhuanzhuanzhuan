@@ -8,7 +8,9 @@
     "pages/accountRing/accountRing",
     "pages/login/login",
     "pages/logs/logs",
-    "pages/navigation_bus/navigation"
+    "pages/navigation_bus/navigation",
+    "pages/navigation_ride/navigation",
+    "pages/navigation_walk/navigation"
   ],
   "window": {
     "backgroundTextStyle": "light",

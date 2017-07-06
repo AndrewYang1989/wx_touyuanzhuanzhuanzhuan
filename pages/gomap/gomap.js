@@ -78,7 +78,6 @@ Page({
     })
   },
   goToBus: function (e) {
-    console.log('1')
     wx.redirectTo({
       url: '../navigation_bus/navigation'
     })

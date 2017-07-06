@@ -3,14 +3,14 @@ var config = require('../../lib/config.js');
 Page({
   data: {
     markers: [{
-      iconPath: "../../images/3.png",
+      iconPath: "../../images/4.png",
       id: 0,
       latitude: 39.989643,
       longitude: 116.481028,
       width: 23,
       height: 33
     }, {
-        iconPath: "../../images/3.png",
+        iconPath: "../../images/4.png",
       id: 0,
       latitude: 39.90816,
       longitude: 116.434446,
@@ -19,43 +19,56 @@ Page({
     }],
     distance: '',
     cost: '',
-    transits: [],
     polyline: []
   },
   onLoad: function () {
     var that = this;
     var key = config.Config.key;
     var myAmapFun = new amapFile.AMapWX({ key: 'afdfdefe14d15e05974ddbb7c0a76f93' });
-    myAmapFun.getTransitRoute({
+    myAmapFun.getWalkingRoute({
       origin: '116.481028,39.989643',
       destination: '116.434446,39.90816',
-      city: '北京',
       success: function (data) {
-        console.log(data)
-        if (data && data.transits) {
-          var transits = data.transits;
-          for (var i = 0; i < transits.length; i++) {
-            var segments = transits[i].segments;
-            transits[i].transport = [];
-            for (var j = 0; j < segments.length; j++) {
-              if (segments[j].bus && segments[j].bus.buslines && segments[j].bus.buslines[0] && segments[j].bus.buslines[0].name) {
-                var name = segments[j].bus.buslines[0].name
-                if (j !== 0) {
-                  name = '--' + name;
-                }
-                transits[i].transport.push(name);
-              }
+        var points = [];
+        if (data.paths && data.paths[0] && data.paths[0].steps) {
+          var steps = data.paths[0].steps;
+          for (var i = 0; i < steps.length; i++) {
+            var poLen = steps[i].polyline.split(';');
+            for (var j = 0; j < poLen.length; j++) {
+              points.push({
+                longitude: parseFloat(poLen[j].split(',')[0]),
+                latitude: parseFloat(poLen[j].split(',')[1])
+              })
             }
           }
         }
         that.setData({
-          transits: transits
+          polyline: [{
+            points: points,
+            color: "#0091ff",
+            width: 6
+          }]
         });
+        if (data.paths[0] && data.paths[0].distance) {
+          that.setData({
+            distance: data.paths[0].distance + '米'
+          });
+        }
+        if (data.paths[0] && data.paths[0].duration) {
+          that.setData({
+            cost: parseInt(data.paths[0].duration / 60) + '分钟'
+          });
+        }
 
       },
       fail: function (info) {
 
       }
+    })
+  },
+  goDetail: function () {
+    wx.navigateTo({
+      url: '../navigation_walk_detail/navigation'
     })
   },
   goToCar: function (e) {
