@@ -5,7 +5,7 @@
   <view class="flex-item" bindtouchstart="goToRide">骑行</view>
 </view>
 <view class="map_box">
-  <map id="navi_map" longitude="116.451028" latitude="39.949643" scale="12" markers="{{markers}}" polyline="{{polyline}}"></map>
+  <map id="navi_map" longitude="114.305393" latitude="30.593099" scale="12" markers="{{markers}}" polyline="{{polyline}}"></map>
 </view>
 
 <view class="text_box">

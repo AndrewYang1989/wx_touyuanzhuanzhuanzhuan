@@ -24,48 +24,87 @@ Page({
   },
   onLoad: function () {
     var that = this;
-    var key = config.Config.key;
-    var myAmapFun = new amapFile.AMapWX({ key: 'afdfdefe14d15e05974ddbb7c0a76f93' });
-    myAmapFun.getDrivingRoute({
-      origin: '116.481028,39.989643',
-      destination: '116.434446,39.96816',
-      success: function (data) {
-        var points = [];
-        if (data.paths && data.paths[0] && data.paths[0].steps) {
-          var steps = data.paths[0].steps;
-          for (var i = 0; i < steps.length; i++) {
-            var poLen = steps[i].polyline.split(';');
-            for (var j = 0; j < poLen.length; j++) {
-              points.push({
-                longitude: parseFloat(poLen[j].split(',')[0]),
-                latitude: parseFloat(poLen[j].split(',')[1])
-              })
-            }
-          }
-        }
-        that.setData({
-          polyline: [{
-            points: points,
-            color: "#0091ff",
-            width: 6
-          }]
-        });
-        if (data.paths[0] && data.paths[0].distance) {
-          that.setData({
-            distance: data.paths[0].distance + '米'
-          });
-        }
-        if (data.taxi_cost) {
-          that.setData({
-            cost: '打车约' + parseInt(data.taxi_cost) + '元'
-          });
-        }
-
-      },
-      fail: function (info) {
-
+    var model;
+    wx.getLocation({
+      type: 'wgs84',
+      success: function (res) {
+        var latitude = res.latitude
+        var longitude = res.longitude
+        var speed = res.speed
+        var accuracy = res.accuracy
+        wx.setStorage({
+          key: "local",
+          data: res
+        })
       }
     })
+    var key = config.Config.key;
+    wx.getStorage({
+      key: 'local',
+      success: function (res) {
+        console.log(res.data)
+        that.setData({
+          markers: [{
+            iconPath: "../../images/1.png",
+            id: 0,
+            latitude: res.data.latitude,
+            longitude: res.data.longitude,
+            width: 23,
+            height: 33
+          }, {
+            iconPath: "../../images/1.png",
+            id: 0,
+            latitude: res.data.latitude+0.01,
+            longitude: res.data.longitude+0.01,
+            width: 24,
+            height: 34
+          }]
+        })
+        myAmapFun.getDrivingRoute({
+          origin: res.data.longitude + ',' + res.data.latitude,
+          destination: (res.data.longitude+0.01) + ',' + (res.data.latitude+0.0),
+          success: function (data) {
+            var points = [];
+            if (data.paths && data.paths[0] && data.paths[0].steps) {
+              var steps = data.paths[0].steps;
+              for (var i = 0; i < steps.length; i++) {
+                var poLen = steps[i].polyline.split(';');
+                for (var j = 0; j < poLen.length; j++) {
+                  points.push({
+                    longitude: parseFloat(poLen[j].split(',')[0]),
+                    latitude: parseFloat(poLen[j].split(',')[1])
+                  })
+                }
+              }
+            }
+            that.setData({
+              polyline: [{
+                points: points,
+                color: "#0091ff",
+                width: 6
+              }]
+            });
+            if (data.paths[0] && data.paths[0].distance) {
+              that.setData({
+                distance: data.paths[0].distance + '米'
+              });
+            }
+            if (data.taxi_cost) {
+              that.setData({
+                cost: '打车约' + parseInt(data.taxi_cost) + '元'
+              });
+            }
+
+          },
+          fail: function (info) {
+
+          }
+        })
+      }
+    })
+   
+    var myAmapFun = new amapFile.AMapWX({ key: 'afdfdefe14d15e05974ddbb7c0a76f93' });
+    
   },
   goDetail: function () {
     wx.navigateTo({
